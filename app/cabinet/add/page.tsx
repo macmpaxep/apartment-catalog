@@ -60,7 +60,7 @@ export default function AddApartmentPage() {
     features: p.features.includes(f) ? p.features.filter((x) => x !== f) : [...p.features, f],
   }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (!userId) return;
@@ -72,7 +72,7 @@ export default function AddApartmentPage() {
     if (!form.ownerPhone) { setError("Укажите номер телефона"); return; }
     if (!form.ownerName) { setError("Укажите имя владельца"); return; }
 
-    const apt = addApartment({
+    const apt = await addApartment({
       rooms: Number(form.rooms),
       title: form.title || `${form.rooms}-комн. квартира, ${form.city}`,
       city: form.city,
