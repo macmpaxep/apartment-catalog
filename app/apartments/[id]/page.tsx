@@ -1,10 +1,9 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import { getApartmentById } from "@/lib/store";
+import { getAllApts } from "@/lib/store";
 import type { Apartment } from "@/data/apartments";
 import {
   ArrowLeft, MapPin, Layers, Maximize2, CalendarDays,
@@ -56,10 +55,12 @@ export default function ApartmentPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const found = getApartmentById(id);
-    setApt(found ?? null);
-    setLiked(getFavorites().includes(id));
-    setLoading(false);
+    getAllApts().then((all) => {
+      const found = all.find((a) => a.id === id) ?? null;
+      setApt(found);
+      setLiked(getFavorites().includes(id));
+      setLoading(false);
+    });
   }, [id]);
 
   const handleFav = () => setLiked(toggleFavorite(id));
@@ -91,8 +92,6 @@ export default function ApartmentPage() {
     <div className="min-h-screen bg-neutral-50">
       <Navbar/>
       <div className="max-w-4xl mx-auto px-4 py-6">
-
-        {/* Breadcrumb */}
         <div className="flex items-center justify-between mb-5">
           <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-900 transition-colors">
             <ArrowLeft size={14}/> Каталог
@@ -100,23 +99,17 @@ export default function ApartmentPage() {
           <div className="flex items-center gap-2">
             <button onClick={handleShare}
               className="flex items-center gap-1.5 text-xs border border-neutral-200 rounded-xl px-3 py-2 hover:border-neutral-400 transition-colors text-neutral-600">
-              <Share2 size={12}/>
-              {copied ? "Скопировано!" : "Поделиться"}
+              <Share2 size={12}/>{copied ? "Скопировано!" : "Поделиться"}
             </button>
             <button onClick={handleFav}
               className={`flex items-center gap-1.5 text-xs border rounded-xl px-3 py-2 transition-colors ${liked ? "border-rose-200 bg-rose-50 text-rose-600" : "border-neutral-200 hover:border-neutral-400 text-neutral-600"}`}>
-              <Heart size={12} fill={liked ? "currentColor" : "none"}/>
-              {liked ? "В избранном" : "В избранное"}
+              <Heart size={12} fill={liked ? "currentColor" : "none"}/>{liked ? "В избранном" : "В избранное"}
             </button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-
-          {/* LEFT COLUMN */}
           <div className="md:col-span-3 space-y-4">
-
-            {/* Plan + main info */}
             <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
               <div className="h-56 bg-neutral-50 flex items-center justify-center p-8">
                 <FloorPlan rooms={apt.rooms}/>
@@ -133,8 +126,6 @@ export default function ApartmentPage() {
                 <p className="text-sm text-neutral-400 flex items-center gap-1 mb-4">
                   <MapPin size={11}/>{apt.address}, {apt.city}
                 </p>
-
-                {/* 6 stats */}
                 <div className="grid grid-cols-3 gap-2 mb-4">
                   {[
                     { icon: <Maximize2 size={12}/>, label: "Общая площадь", val: `${apt.area} м²` },
@@ -150,14 +141,12 @@ export default function ApartmentPage() {
                     </div>
                   ))}
                 </div>
-
                 {apt.description && (
                   <p className="text-sm text-neutral-600 leading-relaxed">{apt.description}</p>
                 )}
               </div>
             </div>
 
-            {/* Features */}
             {apt.features?.length > 0 && (
               <div className="bg-white rounded-2xl border border-neutral-200 p-5">
                 <h2 className="text-sm font-semibold text-neutral-900 mb-3">Особенности</h2>
@@ -172,7 +161,6 @@ export default function ApartmentPage() {
             )}
           </div>
 
-          {/* RIGHT SIDEBAR */}
           <div className="md:col-span-2">
             <div className="bg-white rounded-2xl border border-neutral-200 p-5 sticky top-20">
               <div className="text-2xl font-bold text-neutral-900 mb-0.5">
@@ -181,7 +169,6 @@ export default function ApartmentPage() {
               {apt.price > 0 && (
                 <div className="text-xs text-neutral-400 mb-5">{pricePerM2} ₸ за м²</div>
               )}
-
               <div className="border-t border-neutral-100 pt-4 mb-4">
                 <p className="text-[10px] text-neutral-400 uppercase tracking-wide font-medium mb-3">Контакты продавца</p>
                 <div className="flex items-center gap-3 mb-4">
@@ -198,7 +185,6 @@ export default function ApartmentPage() {
                   <Phone size={14}/>{apt.ownerPhone}
                 </a>
               </div>
-
               {apt.createdAt && (
                 <p className="text-[11px] text-neutral-400 text-center">
                   Добавлено {new Date(apt.createdAt).toLocaleDateString("ru-RU")}
