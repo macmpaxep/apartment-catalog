@@ -22,13 +22,13 @@ export default function CabinetPage() {
     const u = getCurrentUser();
     if (!u) { router.push("/login"); return; }
     setUser(u);
-    const all = getUserApartments();
-    setMyApartments(all.filter((a) => a.userId === u.id));
+    getUserApartments().then((all) => {
+    setMyApartments(all.filter((a) => a.userId === u.id)); });
   }, [router]);
 
   const handleDelete = (id: string) => {
     if (!confirm("Удалить объявление?")) return;
-    deleteApartment(id);
+    deleteApartment(id); // async, fire and forget
     setMyApartments((p) => p.filter((a) => a.id !== id));
   };
 
